@@ -41,6 +41,17 @@ public class ServiceDAO {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
+    public void deleteAnyService(int serviceId) {
+        String query = "DELETE FROM services WHERE id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, serviceId);
+            int rows = ps.executeUpdate();
+            if (rows > 0) System.out.println("Service deleted by Admin.");
+            else System.out.println("Error: Service not found.");
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
     public List<String> getAllServices() {
         List<String> list = new ArrayList<>();
         String query = "SELECT s.id, s.title, s.price, s.subject, u.username, u.phone " +
@@ -48,6 +59,26 @@ public class ServiceDAO {
         try {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
+            while (rs.next()) {
+                list.add("ID: " + rs.getInt("id") + " | " + rs.getString("title") +
+                        " (" + rs.getDouble("price") + "$) | Author: " +
+                        rs.getString("username") + " (" + rs.getString("phone") + ")");
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public List<String> searchServices(String keyword) {
+        List<String> list = new ArrayList<>();
+        String query = "SELECT s.id, s.title, s.price, s.subject, u.username, u.phone " +
+                "FROM services s JOIN users u ON s.provider_id = u.id " +
+                "WHERE LOWER(s.title) LIKE LOWER(?) OR LOWER(s.subject) LIKE LOWER(?)";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query);
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add("ID: " + rs.getInt("id") + " | " + rs.getString("title") +
                         " (" + rs.getDouble("price") + "$) | Author: " +
