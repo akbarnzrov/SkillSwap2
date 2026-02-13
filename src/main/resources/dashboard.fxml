@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.skillswap.controllers.DashboardController">
+
+    <left>
+        <VBox spacing="15.0" style="-fx-background-color: #2c3e50;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="30.0" left="20.0" right="20.0" top="30.0" />
+            </padding>
+            <Label text="MENU" textFill="WHITE">
+                <font>
+                    <Font name="System Bold" size="32.0" />
+                </font>
+                <VBox.margin>
+                    <Insets bottom="20.0" />
+                </VBox.margin>
+            </Label>
+
+            <Button onAction="#showMarket" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="Market" />
+            <Button onAction="#searchCourse" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="Search" />
+            <Button onAction="#enrollCourse" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="Enroll Selected" />
+            <Button onAction="#showMyEnrollments" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="My Enrollments" />
+            <Button onAction="#createCourse" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="Create Course" />
+            <Button onAction="#showMyStudents" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="My Students" />
+            <Button onAction="#deleteMyCourse" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-cursor: hand; -fx-font-size: 18px;" text="Delete / Unenroll" />
+
+            <Label fx:id="userLabel" text="User: ..." textFill="#bdc3c7" wrapText="true">
+                <VBox.margin>
+                    <Insets top="40.0" />
+                </VBox.margin>
+                <font>
+                    <Font size="18.0" />
+                </font>
+            </Label>
+            <Button onAction="#handleLogout" prefHeight="45.0" prefWidth="220.0" style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-size: 18px;" text="Log Out" />
+        </VBox>
+    </left>
+
+    <center>
+        <VBox spacing="20.0" style="-fx-background-color: #ecf0f1;">
+            <padding>
+                <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+            </padding>
+            <Label fx:id="statusLabel" text="Welcome to SkillSwap!" textFill="#2c3e50">
+                <font>
+                    <Font name="System Bold" size="32.0" />
+                </font>
+            </Label>
+            <ListView fx:id="listView" style="-fx-font-size: 20px;" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </center>
+
+</BorderPane>
