@@ -55,14 +55,14 @@ public class ServiceDAO {
     public List<String> getAllServices() {
         List<String> list = new ArrayList<>();
         String query = "SELECT s.id, s.title, s.price, s.subject, u.username, u.phone " +
-                "FROM services s JOIN users u ON s.provider_id = u.id";
+                "FROM services s JOIN users u ON s.provider_id = u.id ORDER BY s.id";
         try {
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
             while (rs.next()) {
                 list.add("ID: " + rs.getInt("id") + " | " + rs.getString("title") +
                         " (" + rs.getDouble("price") + "$) | Author: " +
-                        rs.getString("username") + " (" + rs.getString("phone") + ")");
+                        rs.getString("username"));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
@@ -82,7 +82,7 @@ public class ServiceDAO {
             while (rs.next()) {
                 list.add("ID: " + rs.getInt("id") + " | " + rs.getString("title") +
                         " (" + rs.getDouble("price") + "$) | Author: " +
-                        rs.getString("username") + " (" + rs.getString("phone") + ")");
+                        rs.getString("username"));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
@@ -97,7 +97,7 @@ public class ServiceDAO {
             ps.executeUpdate();
             System.out.println("You have successfully enrolled!");
         } catch (SQLException e) {
-            System.out.println("Error: Maybe you are already enrolled or ID is wrong.");
+            System.out.println("Error: Already enrolled or invalid ID.");
         }
     }
 
@@ -123,8 +123,23 @@ public class ServiceDAO {
             ps.setInt(1, studentId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add("Course ID: " + rs.getInt("id") + " | " + rs.getString("title") +
-                        " | Author Phone: " + rs.getString("phone"));
+                list.add("ID: " + rs.getInt("id") + " | " + rs.getString("title") +
+                        " | Contact: " + rs.getString("phone"));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public List<String> getMyCreatedServices(int providerId) {
+        List<String> list = new ArrayList<>();
+        String query = "SELECT id, title, price, subject FROM services WHERE provider_id = ?";
+        try {
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setInt(1, providerId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add("ID: " + rs.getInt("id") + " | " + rs.getString("title") +
+                        " | " + rs.getString("subject"));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
@@ -132,7 +147,7 @@ public class ServiceDAO {
 
     public List<String> getMyStudents(int providerId) {
         List<String> list = new ArrayList<>();
-        String query = "SELECT s.title, u.username, u.phone FROM bookings b " +
+        String query = "SELECT b.student_id, b.service_id, s.title, u.username, u.phone FROM bookings b " +
                 "JOIN services s ON b.service_id = s.id " +
                 "JOIN users u ON b.student_id = u.id " +
                 "WHERE s.provider_id = ?";
@@ -141,8 +156,12 @@ public class ServiceDAO {
             ps.setInt(1, providerId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add("Course: " + rs.getString("title") + " -> Student: " +
-                        rs.getString("username") + " (Phone: " + rs.getString("phone") + ")");
+                // ИСПРАВЛЕНО: Добавлен вывод номера телефона в конце строки
+                list.add("Student_ID: " + rs.getInt("student_id") +
+                        " | Course_ID: " + rs.getInt("service_id") +
+                        " | Course: " + rs.getString("title") +
+                        " -> Student: " + rs.getString("username") +
+                        " | Phone: " + rs.getString("phone"));
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
