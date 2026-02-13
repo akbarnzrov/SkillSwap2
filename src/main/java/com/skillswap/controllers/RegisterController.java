@@ -32,8 +32,7 @@ public class RegisterController {
             return;
         }
 
-        // Проверяем, не занято ли имя (простая проверка через попытку логина,
-        // но лучше бы добавить checkUserExists в DAO, пока так)
+
         try {
             userDAO.registerUser(new User(username, password, phone));
             statusLabel.setStyle("-fx-text-fill: green;");

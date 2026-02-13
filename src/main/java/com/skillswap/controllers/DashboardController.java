@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Optional;
+import java.sql.SQLException;
 
 public class DashboardController {
 
@@ -20,7 +21,6 @@ public class DashboardController {
 
     private User currentUser;
     private ServiceDAO serviceDAO = new ServiceDAO();
-
 
     private int currentMode = 1;
 
@@ -54,7 +54,6 @@ public class DashboardController {
 
     @FXML
     private void enrollCourse() {
-
         String selected = listView.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
@@ -67,12 +66,11 @@ public class DashboardController {
             return;
         }
 
-
         int courseId = extractId(selected, "ID: ");
         if (courseId != -1) {
             serviceDAO.bookCourse(currentUser.getId(), courseId);
             showAlert("Success", "You enrolled in course ID: " + courseId);
-            showMyEnrollments(); // Сразу перекидываем в мои записи
+            showMyEnrollments();
         } else {
             showAlert("Error", "Could not read ID from selection.");
         }
@@ -98,12 +96,24 @@ public class DashboardController {
 
         try {
             double price = Double.parseDouble(priceStr);
+            // Пытаемся сохранить. Если таблицы кривые - тут вылетит ошибка SQLException
             serviceDAO.addService(new TutoringService(title, price, subject, currentUser.getId()));
-            showAlert("Success", "Course Created!");
-            // Показываем мои созданные курсы
+
+            // Если код дошел сюда, значит точно сохранилось
+            showAlert("Success", "Course Created Successfully!");
+
+            // Сразу показываем мои курсы, чтобы убедиться
             deleteMyCourse();
+
+        } catch (NumberFormatException e) {
+            showAlert("Error", "Invalid price format! Use dot (e.g. 50.0).");
+        } catch (SQLException e) {
+            // ВОТ ГЛАВНОЕ ИСПРАВЛЕНИЕ: Мы видим реальную ошибку
+            e.printStackTrace();
+            showAlert("Database Error", "CRITICAL ERROR: " + e.getMessage());
         } catch (Exception e) {
-            showAlert("Error", "Invalid price format!");
+            e.printStackTrace();
+            showAlert("Error", "An unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -114,17 +124,14 @@ public class DashboardController {
         listView.getItems().setAll(serviceDAO.getMyStudents(currentUser.getId()));
     }
 
-
     @FXML
     private void deleteMyCourse() {
-
         if (currentMode != 3 && currentMode != 2 && currentMode != 4) {
             currentMode = 3;
             statusLabel.setText("MY CREATED COURSES (Select & Click again to DELETE)");
             listView.getItems().setAll(serviceDAO.getMyCreatedServices(currentUser.getId()));
             return;
         }
-
 
         String selected = listView.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -133,31 +140,28 @@ public class DashboardController {
         }
 
         if (currentMode == 2) {
-
             int courseId = extractId(selected, "ID: ");
             if (courseId != -1) {
                 serviceDAO.cancelBooking(currentUser.getId(), courseId);
                 showAlert("Success", "Unenrolled successfully.");
-                showMyEnrollments(); // Обновляем
+                showMyEnrollments();
             }
         }
         else if (currentMode == 4) {
-
             int studentId = extractId(selected, "Student_ID: ");
             int courseId = extractId(selected, "Course_ID: ");
             if (studentId != -1 && courseId != -1) {
                 serviceDAO.cancelBooking(studentId, courseId);
                 showAlert("Success", "Student removed from course.");
-                showMyStudents(); // Обновляем
+                showMyStudents();
             }
         }
         else if (currentMode == 3) {
-
             int courseId = extractId(selected, "ID: ");
             if (courseId != -1) {
                 serviceDAO.deleteService(courseId, currentUser.getId());
                 showAlert("Success", "Course deleted.");
-                listView.getItems().setAll(serviceDAO.getMyCreatedServices(currentUser.getId())); // Обновляем
+                listView.getItems().setAll(serviceDAO.getMyCreatedServices(currentUser.getId()));
             }
         }
     }

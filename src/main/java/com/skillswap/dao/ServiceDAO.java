@@ -5,28 +5,34 @@ import com.skillswap.entities.TutoringService;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ServiceDAO {
     private Connection connection;
+    private Random random = new Random(); // Генератор чисел
 
     public ServiceDAO() {
         connection = DatabaseHandler.getInstance().getConnection();
     }
 
-    public void addService(TutoringService service) {
-        String query = "INSERT INTO services (title, price, type, subject, provider_id) VALUES (?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement statement = connection.prepareStatement(query);
-            statement.setString(1, service.getTitle());
-            statement.setDouble(2, service.getPrice());
-            statement.setString(3, "TUTORING");
-            statement.setString(4, service.getSubject());
-            statement.setInt(5, service.getProviderId());
-            statement.executeUpdate();
-            System.out.println("Service published!");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+
+    public void addService(TutoringService service) throws SQLException {
+
+        int randomId = 10000 + random.nextInt(90000);
+
+
+        String query = "INSERT INTO services (id, title, price, type, subject, provider_id) VALUES (?, ?, ?, ?, ?, ?)";
+
+        PreparedStatement statement = connection.prepareStatement(query);
+        statement.setInt(1, randomId);          // <-- Наш случайный ID
+        statement.setString(2, service.getTitle());
+        statement.setDouble(3, service.getPrice());
+        statement.setString(4, "TUTORING");
+        statement.setString(5, service.getSubject());
+        statement.setInt(6, service.getProviderId());
+
+        statement.executeUpdate();
+        System.out.println("Service published with ID: " + randomId);
     }
 
     public void deleteService(int serviceId, int userId) {
@@ -156,7 +162,6 @@ public class ServiceDAO {
             ps.setInt(1, providerId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                // ИСПРАВЛЕНО: Добавлен вывод номера телефона в конце строки
                 list.add("Student_ID: " + rs.getInt("student_id") +
                         " | Course_ID: " + rs.getInt("service_id") +
                         " | Course: " + rs.getString("title") +
